@@ -1,7 +1,7 @@
 package com.huaixv06.fileCenter.mapper;
 
-import com.huaixv06.fileCenter.model.entity.File;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.huaixv06.fileCenter.model.entity.File;
 
 /**
 * @author 11517

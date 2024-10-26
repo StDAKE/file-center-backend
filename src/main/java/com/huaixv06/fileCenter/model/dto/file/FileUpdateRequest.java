@@ -1,12 +1,9 @@
 package com.huaixv06.fileCenter.model.dto.file;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
 
 @Data
 public class FileUpdateRequest implements Serializable {
