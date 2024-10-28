@@ -216,7 +216,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File>
         }
         queryWrapper.like(StringUtils.isNotBlank(name), "name", name);
         queryWrapper.like(StringUtils.isNotBlank(content), "content", content);
-        queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);
+        if (id!= 0) {
+            queryWrapper.eq("id", id);
+        }
         queryWrapper.eq(ObjectUtils.isNotEmpty(userId), "userId", userId);
         queryWrapper.eq("isDelete", false);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),

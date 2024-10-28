@@ -83,13 +83,7 @@ public class FileFavourServiceImpl extends ServiceImpl<FileFavourMapper, FileFav
         if (oldFileFavour != null) {
             result = this.remove(fileFavourQueryWrapper);
             if (result) {
-                // 帖子收藏数 - 1
-                result = fileService.update()
-                        .eq("id", fileId)
-                        .gt("favourNum", 0)
-                        .setSql("favourNum = favourNum - 1")
-                        .update();
-                return result ? -1 : 0;
+                return -1;
             } else {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR);
             }
@@ -97,12 +91,7 @@ public class FileFavourServiceImpl extends ServiceImpl<FileFavourMapper, FileFav
             // 未帖子收藏
             result = this.save(fileFavour);
             if (result) {
-                // 帖子收藏数 + 1
-                result = fileService.update()
-                        .eq("id", fileId)
-                        .setSql("favourNum = favourNum + 1")
-                        .update();
-                return result ? 1 : 0;
+                return 1;
             } else {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR);
             }
