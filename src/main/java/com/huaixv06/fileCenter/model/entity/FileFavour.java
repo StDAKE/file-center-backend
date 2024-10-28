@@ -1,5 +1,6 @@
 package com.huaixv06.fileCenter.model.entity;
 
+
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -9,7 +10,8 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * 
+ * 文件收藏
+ *
  * @TableName file_favour
  */
 @TableName(value ="file_favour")
@@ -18,7 +20,7 @@ public class FileFavour implements Serializable {
     /**
      * id
      */
-    @TableId
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**

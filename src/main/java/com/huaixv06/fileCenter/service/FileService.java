@@ -1,7 +1,9 @@
 package com.huaixv06.fileCenter.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.huaixv06.fileCenter.model.dto.file.FileQueryRequest;
 import com.huaixv06.fileCenter.model.dto.file.FileQueryRequestByEs;
 import com.huaixv06.fileCenter.model.entity.File;
 import com.huaixv06.fileCenter.model.vo.FileVO;
@@ -20,4 +22,12 @@ public interface FileService extends IService<File> {
     Page<File> searchFromEs(FileQueryRequestByEs fileQueryRequestByEs);
 
     Page<FileVO> getFileVOPage(Page<File> filePage, HttpServletRequest request);
+
+    /**
+     * 获取查询条件
+     *
+     * @param fileQueryRequest
+     * @return
+     */
+    QueryWrapper<File> getQueryWrapper(FileQueryRequest fileQueryRequest);
 }

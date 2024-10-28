@@ -7,14 +7,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.huaixv06.fileCenter.common.ErrorCode;
 import com.huaixv06.fileCenter.constant.CommonConstant;
 import com.huaixv06.fileCenter.exception.BusinessException;
+import com.huaixv06.fileCenter.mapper.FileFavourMapper;
 import com.huaixv06.fileCenter.mapper.FileMapper;
 import com.huaixv06.fileCenter.model.dto.file.FileEsDTO;
+import com.huaixv06.fileCenter.model.dto.file.FileQueryRequest;
 import com.huaixv06.fileCenter.model.dto.file.FileQueryRequestByEs;
 import com.huaixv06.fileCenter.model.entity.File;
+import com.huaixv06.fileCenter.model.entity.FileFavour;
 import com.huaixv06.fileCenter.model.entity.User;
 import com.huaixv06.fileCenter.model.vo.FileVO;
 import com.huaixv06.fileCenter.service.FileService;
 import com.huaixv06.fileCenter.service.UserService;
+import com.huaixv06.fileCenter.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,6 +54,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File>
     private UserService userService;
 
     @Resource
+    private FileFavourMapper fileFavourMapper;
+
+    @Resource
     private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
     @Override
@@ -78,7 +85,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File>
     }
 
     /**
-     * 从 ES 查询题目
+     * 从 ES 查询文件
      *
      * @param fileQueryRequestByEs
      * @return
@@ -161,39 +168,62 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File>
         if (CollectionUtils.isEmpty(fileList)) {
             return fileVOPage;
         }
-        // 1. 关联查询用户信息
-        Set<Long> userIdSet = fileList.stream().map(File::getUserId).collect(Collectors.toSet());
-//        Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet).stream()
-//                .collect(Collectors.groupingBy(User::getId));
-//        // 2. 已登录，获取用户收藏状态
-//        Map<Long, Boolean> fileIdHasFavourMap = new HashMap<>();
-//        User loginUser = userService.getLoginUser(request);
-//        if (loginUser != null) {
-//            Set<Long> fileIdSet = fileList.stream().map(File::getId).collect(Collectors.toSet());
-//            loginUser = userService.getLoginUser(request);
-//            // 获取收藏
-//            QueryWrapper<FileFavour> fileFavourQueryWrapper = new QueryWrapper<>();
-//            fileFavourQueryWrapper.in("fileId", fileIdSet);
-//            fileFavourQueryWrapper.eq("userId", loginUser.getId());
-//            List<FileFavour> fileFavourList = fileFavourMapper.selectList(fileFavourQueryWrapper);
-//            fileFavourList.forEach(fileFavour -> fileIdHasFavourMap.put(fileFavour.getFileId(), true));
-//        }
+        // 1. 已登录，获取用户收藏状态
+        Map<Long, Boolean> fileIdHasFavourMap = new HashMap<>();
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser != null) {
+            Set<Long> fileIdSet = fileList.stream().map(File::getId).collect(Collectors.toSet());
+            loginUser = userService.getLoginUser(request);
+            // 获取收藏
+            QueryWrapper<FileFavour> fileFavourQueryWrapper = new QueryWrapper<>();
+            fileFavourQueryWrapper.in("fileId", fileIdSet);
+            fileFavourQueryWrapper.eq("userId", loginUser.getId());
+            List<FileFavour> fileFavourList = fileFavourMapper.selectList(fileFavourQueryWrapper);
+            fileFavourList.forEach(fileFavour -> fileIdHasFavourMap.put(fileFavour.getFileId(), true));
+        }
         // 填充信息
         List<FileVO> fileVOList = fileList.stream().map(file -> {
             FileVO fileVO = FileVO.objToVo(file);
-//            Long userId = file.getUserId();
-//            User user = null;
-//            if (userIdUserListMap.containsKey(userId)) {
-//                user = userIdUserListMap.get(userId).get(0);
-//            }
-//            fileVO.setUser(userService.getUserVO(user));
-//            fileVO.setHasFavour(fileIdHasFavourMap.getOrDefault(file.getId(), false));
+            fileVO.setHasFavour(fileIdHasFavourMap.getOrDefault(file.getId(), false));
             return fileVO;
         }).collect(Collectors.toList());
         fileVOPage.setRecords(fileVOList);
         return fileVOPage;
     }
 
+    /**
+     * 获取查询包装类
+     *
+     * @param fileQueryRequest
+     * @return
+     */
+    @Override
+    public QueryWrapper<File> getQueryWrapper(FileQueryRequest fileQueryRequest) {
+        QueryWrapper<File> queryWrapper = new QueryWrapper<>();
+        if (fileQueryRequest == null) {
+            return queryWrapper;
+        }
+        String searchText = fileQueryRequest.getSearchText();
+        String sortField = fileQueryRequest.getSortField();
+        String sortOrder = fileQueryRequest.getSortOrder();
+        Long id = fileQueryRequest.getId();
+        String name = fileQueryRequest.getName();
+        String content = fileQueryRequest.getContent();
+        Long userId = fileQueryRequest.getUserId();
+        // 拼接查询条件
+        if (StringUtils.isNotBlank(searchText)) {
+            queryWrapper.like("name", searchText).or().like("content", searchText);
+        }
+        queryWrapper.like(StringUtils.isNotBlank(name), "name", name);
+        queryWrapper.like(StringUtils.isNotBlank(content), "content", content);
+        queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);
+        queryWrapper.eq(ObjectUtils.isNotEmpty(userId), "userId", userId);
+        queryWrapper.eq("isDelete", false);
+        queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
+                sortField);
+        return queryWrapper;
+    }
+    
 }
 
 

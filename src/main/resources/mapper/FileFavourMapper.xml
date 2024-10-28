@@ -16,4 +16,12 @@
         id,fileId,userId,
         createTime,updateTime
     </sql>
+
+    <select id="listFavourFileByPage"
+            resultType="com.huaixv06.fileCenter.model.entity.File">
+        select p.*
+        from file_center.file p
+                 join (select fileId from file_center.file_favour where userId = #{favourUserId}) pf
+                      on p.id = pf.fileId ${ew.customSqlSegment}
+    </select>
 </mapper>

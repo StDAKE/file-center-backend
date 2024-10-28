@@ -26,6 +26,11 @@ public class FileQueryRequest extends PageRequest implements Serializable {
     private String fileType;
 
     /**
+     * 搜索词
+     */
+    private String searchText;
+
+    /**
      * 创建用户 id
      */
     private Long userId;
@@ -33,7 +38,7 @@ public class FileQueryRequest extends PageRequest implements Serializable {
     /**
      * 文件内容
      */
-    private byte[] content;
+    private String content;
 
     private static final long serialVersionUID = 1L;
 }

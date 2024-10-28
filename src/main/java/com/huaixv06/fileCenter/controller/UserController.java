@@ -11,6 +11,7 @@ import com.huaixv06.fileCenter.common.ResultUtils;
 import com.huaixv06.fileCenter.exception.BusinessException;
 import com.huaixv06.fileCenter.model.dto.user.*;
 import com.huaixv06.fileCenter.model.entity.User;
+import com.huaixv06.fileCenter.model.vo.UserLoginVO;
 import com.huaixv06.fileCenter.model.vo.UserVO;
 import com.huaixv06.fileCenter.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -63,7 +64,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public BaseResponse<User> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+    public BaseResponse<UserLoginVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -72,8 +73,8 @@ public class UserController {
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = userService.userLogin(userAccount, userPassword, request);
-        return ResultUtils.success(user);
+        UserLoginVO userLoginVO = userService.userLogin(userAccount, userPassword, request);
+        return ResultUtils.success(userLoginVO);
     }
 
     /**

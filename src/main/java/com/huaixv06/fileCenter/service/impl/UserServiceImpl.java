@@ -6,9 +6,11 @@ import com.huaixv06.fileCenter.common.ErrorCode;
 import com.huaixv06.fileCenter.exception.BusinessException;
 import com.huaixv06.fileCenter.mapper.UserMapper;
 import com.huaixv06.fileCenter.model.entity.User;
+import com.huaixv06.fileCenter.model.vo.UserLoginVO;
 import com.huaixv06.fileCenter.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -74,7 +76,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+    public UserLoginVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         // 1. 校验
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
@@ -103,7 +105,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         // 3. 记录用户的登录态
         request.getSession().setAttribute(USER_LOGIN_STATE, user);
-        return user;
+        // 4.把用户的session加到UserLoginVO中
+        UserLoginVO userLoginVO = new UserLoginVO();
+        userLoginVO.setSession(request.getSession().getId());
+        BeanUtils.copyProperties(user, userLoginVO);
+        return userLoginVO;
     }
 
     /**

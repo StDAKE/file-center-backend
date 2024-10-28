@@ -42,6 +42,11 @@ public class FileVO implements Serializable {
     private Date updateTime;
 
     /**
+     * 是否已收藏
+     */
+    private Boolean hasFavour;
+
+    /**
      * 包装类转对象
      *
      * @param fileVO
