@@ -13,14 +13,17 @@ import com.huaixv06.fileCenter.exception.BusinessException;
 import com.huaixv06.fileCenter.exception.ThrowUtils;
 import com.huaixv06.fileCenter.model.dto.file.FileAddRequest;
 import com.huaixv06.fileCenter.model.dto.file.FileQueryRequest;
+import com.huaixv06.fileCenter.model.dto.file.FileQueryRequestByEs;
 import com.huaixv06.fileCenter.model.dto.file.FileUpdateRequest;
 import com.huaixv06.fileCenter.model.entity.File;
 import com.huaixv06.fileCenter.model.entity.User;
+import com.huaixv06.fileCenter.model.vo.FileVO;
 import com.huaixv06.fileCenter.service.FileService;
 import com.huaixv06.fileCenter.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,6 +46,9 @@ public class FileController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
     // region 增删改查
 
@@ -197,12 +203,11 @@ public class FileController {
     }
 
     /**
-     * 获取列表（仅管理员可使用）
+     * 获取列表
      *
      * @param fileQueryRequest
      * @return
      */
-    @AuthCheck(mustRole = "admin")
     @GetMapping("/list")
     public BaseResponse<List<File>> listFile(FileQueryRequest fileQueryRequest, HttpServletRequest request) {
         User user = userService.getLoginUser(request);
@@ -243,7 +248,6 @@ public class FileController {
         String sortField = fileQueryRequest.getSortField();
         String sortOrder = fileQueryRequest.getSortOrder();
         String fileType = fileQuery.getFileType();
-        // TODO 引入 Elasticsearch 实现根据文档内容进行模糊匹配
         // 限制爬虫
         if (size > 50) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -258,6 +262,25 @@ public class FileController {
         return ResultUtils.success(filePage);
     }
 
+    /**
+     * 分页搜索（从 ES 查询，封装类）
+     *
+     * @param fileQueryRequestByEs
+     * @param request
+     * @return
+     */
+    @PostMapping("/search/page/vo")
+    public BaseResponse<Page<FileVO>> searchFileVOByPage(@RequestBody FileQueryRequestByEs fileQueryRequestByEs,
+                                                         HttpServletRequest request) {
+        long size = fileQueryRequestByEs.getPageSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        Page<File> filePage = fileService.searchFromEs(fileQueryRequestByEs);
+        return ResultUtils.success(fileService.getFileVOPage(filePage, request));
+    }
+
     // endregion
 
-}
+
+    }
+

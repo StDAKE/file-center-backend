@@ -98,7 +98,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
         // 判断用户状态
-        if (user.getStatus() == 0) {
+        if (user.getStatus() == 1) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户已被封禁");
         }
         // 3. 记录用户的登录态

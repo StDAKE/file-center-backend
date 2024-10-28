@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class FileQueryRequest extends PageRequest implements Serializable {
+public class FileQueryRequestByEs extends PageRequest implements Serializable {
 
     /**
      * id
@@ -16,24 +16,19 @@ public class FileQueryRequest extends PageRequest implements Serializable {
     private Long id;
 
     /**
+     * 搜索词
+     */
+    private String searchText;
+
+    /**
      * 文件名称
      */
     private String name;
 
     /**
-     * 文件分类
-     */
-    private String fileType;
-
-    /**
-     * 创建用户 id
-     */
-    private Long userId;
-
-    /**
      * 文件内容
      */
-    private byte[] content;
+    private String content;
 
     private static final long serialVersionUID = 1L;
 }

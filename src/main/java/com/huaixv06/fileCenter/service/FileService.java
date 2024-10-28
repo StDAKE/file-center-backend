@@ -1,7 +1,12 @@
 package com.huaixv06.fileCenter.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.huaixv06.fileCenter.model.dto.file.FileQueryRequestByEs;
 import com.huaixv06.fileCenter.model.entity.File;
+import com.huaixv06.fileCenter.model.vo.FileVO;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author 11517
@@ -11,4 +16,8 @@ import com.huaixv06.fileCenter.model.entity.File;
 public interface FileService extends IService<File> {
 
     void validFile(File file, boolean b);
+
+    Page<File> searchFromEs(FileQueryRequestByEs fileQueryRequestByEs);
+
+    Page<FileVO> getFileVOPage(Page<File> filePage, HttpServletRequest request);
 }
