@@ -6,10 +6,10 @@
 
     <resultMap id="BaseResultMap" type="com.huaixv06.fileCenter.model.entity.FileFavour">
             <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="fileid" column="fileId" jdbcType="BIGINT"/>
-            <result property="userid" column="userId" jdbcType="BIGINT"/>
-            <result property="createtime" column="createTime" jdbcType="TIMESTAMP"/>
-            <result property="updatetime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="fileId" column="fileId" jdbcType="BIGINT"/>
+            <result property="userId" column="userId" jdbcType="BIGINT"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
