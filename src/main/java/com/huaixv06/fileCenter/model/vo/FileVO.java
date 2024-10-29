@@ -29,7 +29,12 @@ public class FileVO implements Serializable {
     /**
      * 文件内容
      */
-    private String content;
+    private Byte[] content;
+
+    /**
+     * 文件类型
+     */
+    private String fileIlk;
 
     /**
      * 创建时间

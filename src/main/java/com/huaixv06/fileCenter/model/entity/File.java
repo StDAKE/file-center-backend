@@ -35,6 +35,11 @@ public class File implements Serializable {
     private byte[] content;
 
     /**
+     * 文件类型
+     */
+    private String fileIlk;
+
+    /**
      * 创建时间
      */
     private Date createTime;

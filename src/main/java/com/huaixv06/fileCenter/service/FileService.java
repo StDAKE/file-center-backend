@@ -30,4 +30,6 @@ public interface FileService extends IService<File> {
      * @return
      */
     QueryWrapper<File> getQueryWrapper(FileQueryRequest fileQueryRequest);
+
+    void saveInEs(File file);
 }

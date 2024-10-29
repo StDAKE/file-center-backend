@@ -8,15 +8,18 @@
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="fileType" column="fileType" jdbcType="VARCHAR"/>
-            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="fileIlk" column="fileIlk" jdbcType="VARCHAR"/>
             <result property="userId" column="userId" jdbcType="BIGINT"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
             <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,name,fileType,
+        id,name,fileType,fileIlk,
         createTime,userId,updateTime,
         isDelete,content
     </sql>
 </mapper>
+
+

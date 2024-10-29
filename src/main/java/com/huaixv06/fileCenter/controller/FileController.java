@@ -80,11 +80,12 @@ public class FileController {
         ThrowUtils.throwIf(size > ONE_MB, ErrorCode.PARAMS_ERROR, "文件超过 16M");
         // 校验文件大小缀 aaa.png
         String suffix = FileUtil.getSuffix(originalFilename);
-        final List<String> validFileSuffixList = Arrays.asList("pdf", "txt", "doc", "docx");
+        final List<String> validFileSuffixList = Arrays.asList("pdf", "wps", "doc", "docx");
         ThrowUtils.throwIf(!validFileSuffixList.contains(suffix), ErrorCode.PARAMS_ERROR, "文件后缀非法");
 
         File file = new File();
         file.setContent(multipartFile.getBytes());
+        file.setFileIlk(suffix);
         BeanUtils.copyProperties(fileAddRequest, file);
         // 校验
         fileService.validFile(file, true);
@@ -93,6 +94,7 @@ public class FileController {
         if (!result) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR);
         }
+        fileService.saveInEs(file);
         long newFileId = file.getId();
         return ResultUtils.success(newFileId);
     }
@@ -164,6 +166,7 @@ public class FileController {
 
         File file = new File();
         file.setContent(multipartFile.getBytes());
+        file.setFileIlk(suffix);
         BeanUtils.copyProperties(fileUpdateRequest, file);
         // 参数校验
         fileService.validFile(file, false);
@@ -187,7 +190,6 @@ public class FileController {
      * @param id
      * @return
      */
-    @AuthCheck(mustRole = "admin")
     @GetMapping("/get")
     public BaseResponse<File> getFileById(long id, HttpServletRequest request) {
         User user = userService.getLoginUser(request);
@@ -282,5 +284,5 @@ public class FileController {
     // endregion
 
 
-    }
+}
 

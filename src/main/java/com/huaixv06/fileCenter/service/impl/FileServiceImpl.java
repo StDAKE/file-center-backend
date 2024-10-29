@@ -34,9 +34,15 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
+import org.apache.poi.hwpf.HWPFDocument;
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.slf4j.Logger;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -225,7 +231,59 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File>
                 sortField);
         return queryWrapper;
     }
-    
+
+    @Override
+    public void saveInEs(File file) {
+        String fileIlk = file.getFileIlk();
+        // 如果是doc dox wps文件
+    }
+
+    /**
+     * 获取正文文件内容，docx方法
+     *
+     * @param file
+     * @return
+     */
+//    public static Map<String, String> getContentDocx(File file) {
+//        Map<String, String> map = new HashMap();
+//        StringBuffer content = new StringBuffer("");
+//        String result = "0";  // 0表示获取正常，1表示获取异常
+//        InputStream is = null;
+//        Logger logger = null;
+//        try {
+//            //根据需求入参也可以改为文件路径，对应的输入流部分改为new File(路径)即可
+//            is = new FileInputStream(file);
+//            // 2007版本的word
+//            XWPFDocument xwpf = new XWPFDocument(is);    // 2007版本，仅支持docx文件处理
+//            List<XWPFParagraph> paragraphs = xwpf.getParagraphs();
+//            if (paragraphs != null && paragraphs.size() > 0) {
+//                for (XWPFParagraph paragraph : paragraphs) {
+//                    if (!paragraph.getParagraphText().startsWith("    ")) {
+//                        content.append(paragraph.getParagraphText().trim()).append("\r\n");
+//                    } else {
+//                        content.append(paragraph.getParagraphText());
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            logger.error("docx解析正文异常:" + e);
+//            result = "1"; // 出现异常
+//        } finally {
+//            if (is != null) {
+//                try {
+//                    is.close();
+//                } catch (IOException e) {
+//                    logger.error("" + e);
+//                }
+//            }
+//            map.put("result", result);
+//            map.put("content", String.valueOf(content));
+//        }
+//        return map;
+//    }
+
+
+
 }
 
 
