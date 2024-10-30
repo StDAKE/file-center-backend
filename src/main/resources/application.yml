@@ -42,6 +42,12 @@
 #  encryptor:
 #    password: huaixv_06
 
+# 如果密文加盐，需要配置盐值
+jasypt:
+  encryptor:
+    password: huaixv_06
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+    algorithm: PBEWithMD5AndDES
 spring:
   application:
     name: file-center
@@ -67,6 +73,10 @@ spring:
     uris: http://localhost:9200
     username: root
     password: 123456
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
 server:
   port: 7529
   servlet:
@@ -81,9 +91,6 @@ mybatis-plus:
       logic-delete-value: 1 # 逻辑已删除值(默认为 1)
       logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
       # 需要在实体类的作为全局逻辑删除字段名的前面添加 @TableLogic 注解
-# 如果密文加盐，需要配置盐值
-jasypt:
-  encryptor:
-    password: huaixv_06
+
 
 

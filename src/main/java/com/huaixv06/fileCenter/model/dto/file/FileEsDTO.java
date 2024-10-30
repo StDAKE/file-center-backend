@@ -1,5 +1,6 @@
 package com.huaixv06.fileCenter.model.dto.file;
 
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.huaixv06.fileCenter.model.entity.File;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
@@ -49,6 +50,7 @@ public class FileEsDTO implements Serializable {
     /**
      * 是否删除
      */
+    @TableLogic
     private Integer isDelete;
 
     private static final long serialVersionUID = 1L;
@@ -63,7 +65,6 @@ public class FileEsDTO implements Serializable {
         if (file == null) {
             return null;
         }
-        // TODO 对文件内容进行转换
         FileEsDTO fileEsDTO = new FileEsDTO();
         BeanUtils.copyProperties(file, fileEsDTO);
         return fileEsDTO;
