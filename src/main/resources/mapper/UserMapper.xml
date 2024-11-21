@@ -17,8 +17,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,userName,userAvatar,userRole,
-        userPassword,createTime,updateTime,
-        isDelete
+        id,userName,userAccount,userRole,
+        status,userPassword,createTime,
+        updateTime,isDelete
     </sql>
 </mapper>

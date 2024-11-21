@@ -21,6 +21,10 @@ public interface FileService extends IService<File> {
 
     Page<File> searchFromEs(FileQueryRequestByEs fileQueryRequestByEs);
 
+    public FileVO getFileVO(File file, HttpServletRequest request);
+
+    public Page<FileVO> listFileVOByPage(FileQueryRequest fileQueryRequest, HttpServletRequest request);
+
     Page<FileVO> getFileVOPage(Page<File> filePage, HttpServletRequest request);
 
     /**
@@ -32,4 +36,5 @@ public interface FileService extends IService<File> {
     QueryWrapper<File> getQueryWrapper(FileQueryRequest fileQueryRequest);
 
     void saveInEs(File file);
+
 }

@@ -16,6 +16,7 @@ import com.huaixv06.fileCenter.model.vo.UserVO;
 import com.huaixv06.fileCenter.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -32,6 +33,8 @@ public class UserController {
 
     @Resource
     private UserService userService;
+
+    private static final String SALT = "huaixv_06";
 
     // region 登录相关
 
@@ -124,6 +127,24 @@ public class UserController {
         }
         User user = new User();
         BeanUtils.copyProperties(userAddRequest, user);
+        String userAccount = userAddRequest.getUserAccount();
+        String userPassword = userAddRequest.getUserPassword();
+        if (userAccount.length() < 4) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号过短");
+        }
+//        // 校验用户账号格式
+//        String userAccountRegex = "^[\u4e00-\u9fa5]+1[3-9]\\d{9}$";
+//        Pattern pattern = Pattern.compile(userAccountRegex);
+//        Matcher matcher = pattern.matcher(userAccount);
+//        if (!matcher.matches()) {
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号格式不正确，必须为姓名加11位手机号");
+//        }
+        if (userPassword.length() < 6 ) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短");
+        }
+        // 加密
+        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+        user.setUserPassword(encryptPassword);
         boolean result = userService.save(user);
         if (!result) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR);
@@ -163,6 +184,12 @@ public class UserController {
         }
         User user = new User();
         BeanUtils.copyProperties(userUpdateRequest, user);
+        // 加密
+        String userPassword = user.getUserPassword();
+        if (userPassword != null && !userPassword.isEmpty()) {
+            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+            user.setUserPassword(encryptPassword);
+        }
         boolean result = userService.updateById(user);
         return ResultUtils.success(result);
     }

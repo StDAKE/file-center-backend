@@ -4,6 +4,7 @@ package com.huaixv06.fileCenter.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.huaixv06.fileCenter.model.entity.User;
 import com.huaixv06.fileCenter.model.vo.UserLoginVO;
+import com.huaixv06.fileCenter.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -39,6 +40,14 @@ public interface UserService extends IService<User> {
      * @return
      */
     User getLoginUser(HttpServletRequest request);
+
+    /**
+     * 获取脱敏的用户信息
+     *
+     * @param user
+     * @return
+     */
+    UserVO getUserVO(User user);
 
     /**
      * 是否为管理员

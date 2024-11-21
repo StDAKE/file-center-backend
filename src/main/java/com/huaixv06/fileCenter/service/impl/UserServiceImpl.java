@@ -7,6 +7,7 @@ import com.huaixv06.fileCenter.exception.BusinessException;
 import com.huaixv06.fileCenter.mapper.UserMapper;
 import com.huaixv06.fileCenter.model.entity.User;
 import com.huaixv06.fileCenter.model.vo.UserLoginVO;
+import com.huaixv06.fileCenter.model.vo.UserVO;
 import com.huaixv06.fileCenter.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +36,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     /**
      * 盐值，混淆密码
      */
-    private static final String SALT = "yupi";
+    private static final String SALT = "huaixv_06";
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -133,6 +134,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
         return currentUser;
+    }
+
+    @Override
+    public UserVO getUserVO(User user) {
+        if (user == null) {
+            return null;
+        }
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user, userVO);
+        return userVO;
     }
 
     /**

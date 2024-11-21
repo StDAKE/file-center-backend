@@ -68,7 +68,7 @@ public class FileFavourController {
      * @param request
      */
     @PostMapping("/my/list/page")
-    public BaseResponse<Page<File>> listMyFavourFileByPage(@RequestBody FileQueryRequest fileQueryRequest,
+    public BaseResponse<Page<FileVO>> listMyFavourFileByPage(@RequestBody FileQueryRequest fileQueryRequest,
                                                              HttpServletRequest request) {
         if (fileQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -80,7 +80,7 @@ public class FileFavourController {
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
         Page<File> filePage = fileFavourService.listFavourFileByPage(new Page<>(current, size),
                 fileService.getQueryWrapper(fileQueryRequest), loginUser.getId());
-        return ResultUtils.success(filePage);
+        return ResultUtils.success(fileService.getFileVOPage(filePage,request));
     }
 
     /**

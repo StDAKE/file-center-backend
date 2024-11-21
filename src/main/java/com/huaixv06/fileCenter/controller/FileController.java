@@ -23,7 +23,7 @@ import com.huaixv06.fileCenter.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,9 +47,6 @@ public class FileController {
     @Resource
     private UserService userService;
 
-    @Resource
-    private ElasticsearchRestTemplate elasticsearchRestTemplate;
-
     // region 增删改查
 
     /**
@@ -60,6 +57,7 @@ public class FileController {
      * @return
      */
     @AuthCheck(mustRole = "admin")
+    @Transactional
     @PostMapping("/add")
     public BaseResponse<Long> addFile(@RequestPart("file") MultipartFile multipartFile, FileAddRequest fileAddRequest, HttpServletRequest request) throws IOException {
         if(multipartFile == null) {
@@ -94,7 +92,7 @@ public class FileController {
         if (!result) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR);
         }
-        fileService.saveInEs(file);
+//        fileService.saveInEs(file);
         long newFileId = file.getId();
         return ResultUtils.success(newFileId);
     }
@@ -107,6 +105,7 @@ public class FileController {
      * @return
      */
     @AuthCheck(mustRole = "admin")
+    @Transactional
     @PostMapping("/delete")
     public BaseResponse<Boolean> deleteFile(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
@@ -128,6 +127,7 @@ public class FileController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean b = fileService.removeById(id);
+//        fileEsDao.deleteById(id);
         return ResultUtils.success(b);
     }
 
@@ -139,6 +139,7 @@ public class FileController {
      * @return
      */
     @AuthCheck(mustRole = "admin")
+    @Transactional
     @PostMapping("/update")
     public BaseResponse<Boolean> updateFile(@RequestPart("file") MultipartFile multipartFile, FileUpdateRequest fileUpdateRequest,
                                             HttpServletRequest request) throws IOException {
@@ -181,6 +182,7 @@ public class FileController {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
         boolean result = fileService.updateById(file);
+//        fileService.saveInEs(file);
         return ResultUtils.success(result);
     }
 
@@ -192,14 +194,16 @@ public class FileController {
      */
     @GetMapping("/get")
     public BaseResponse<File> getFileById(long id, HttpServletRequest request) {
-        User user = userService.getLoginUser(request);
-        // 判断用户是否被封禁
-        if (user.getStatus() == 1) {
-            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "用户已被封禁");
-        }
-        if (id <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+//        User user = userService.getLoginUser(request);
+//        // 判断用户是否被封禁
+//        if (user.getStatus() == 1) {
+//            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "用户已被封禁");
+//        }
+//        if (id <= 0) {
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+//        }
+//        File file = fileService.getById(id);
+//        return ResultUtils.success(fileService.getFileVO(file, request));
         File file = fileService.getById(id);
         return ResultUtils.success(file);
     }
@@ -210,6 +214,7 @@ public class FileController {
      * @param fileQueryRequest
      * @return
      */
+    @AuthCheck(mustRole = "admin")
     @GetMapping("/list")
     public BaseResponse<List<File>> listFile(FileQueryRequest fileQueryRequest, HttpServletRequest request) {
         User user = userService.getLoginUser(request);
@@ -265,6 +270,32 @@ public class FileController {
     }
 
     /**
+     * 分页获取列表
+     *
+     * @param fileQueryRequest
+     * @param request
+     * @return
+     */
+    @GetMapping("/list/pageVO")
+    public BaseResponse<Page<FileVO>> listFileByPageVO(FileQueryRequest fileQueryRequest, HttpServletRequest request) {
+        if (fileQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = userService.getLoginUser(request);
+        // 判断用户是否被封禁
+        if (user.getStatus() == 1) {
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "用户已被封禁");
+        }
+        long size = fileQueryRequest.getPageSize();
+        // 限制爬虫
+        if (size > 50) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        Page<FileVO> postVOPage = fileService.listFileVOByPage(fileQueryRequest, request);
+        return ResultUtils.success(postVOPage);
+    }
+
+    /**
      * 分页搜索（从 ES 查询，封装类）
      *
      * @param fileQueryRequestByEs
@@ -274,6 +305,11 @@ public class FileController {
     @PostMapping("/search/page/vo")
     public BaseResponse<Page<FileVO>> searchFileVOByPage(@RequestBody FileQueryRequestByEs fileQueryRequestByEs,
                                                          HttpServletRequest request) {
+        User user = userService.getLoginUser(request);
+        // 判断用户是否被封禁
+        if (user.getStatus() == 1) {
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "用户已被封禁");
+        }
         long size = fileQueryRequestByEs.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
