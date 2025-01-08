@@ -63,9 +63,9 @@ public class FileController {
         if(multipartFile == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件不能为空");
         }
-        if (fileAddRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+//        if (fileAddRequest == null) {
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+//        }
         User loginUser = userService.getLoginUser(request);
         if (loginUser.getStatus() == 1) {
             throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "用户已被封禁");
@@ -74,16 +74,20 @@ public class FileController {
         long size = multipartFile.getSize();
         String originalFilename = multipartFile.getOriginalFilename();
         // 校验文件大小
-        final long ONE_MB = 100 * 1024 * 1024L;
-        ThrowUtils.throwIf(size > ONE_MB, ErrorCode.PARAMS_ERROR, "文件超过 100M");
+        final long ONE_MB = 1000 * 1024 * 1024L;
+        ThrowUtils.throwIf(size > ONE_MB, ErrorCode.PARAMS_ERROR, "文件超过 1000M");
         // 校验文件大小缀 aaa.png
         String suffix = FileUtil.getSuffix(originalFilename);
-        final List<String> validFileSuffixList = Arrays.asList("pdf", "wps", "doc", "docx");
+        final List<String> validFileSuffixList = Arrays.asList("pdf", "txt", "doc", "docx","xlsx","rtf");
         ThrowUtils.throwIf(!validFileSuffixList.contains(suffix), ErrorCode.PARAMS_ERROR, "文件后缀非法");
 
         File file = new File();
         file.setContent(multipartFile.getBytes());
         file.setFileIlk(suffix);
+        // 如果请求体name值为空 则自动捕获文件名作为name
+        if(fileAddRequest.getName() == null || fileAddRequest.getName().equals("")) {
+            fileAddRequest.setName(originalFilename);
+        }
         BeanUtils.copyProperties(fileAddRequest, file);
         // 校验
         fileService.validFile(file, true);
@@ -158,11 +162,11 @@ public class FileController {
         long size = multipartFile.getSize();
         String originalFilename = multipartFile.getOriginalFilename();
         // 校验文件大小
-        final long ONE_MB = 16 * 1024 * 1024L;
-        ThrowUtils.throwIf(size > ONE_MB, ErrorCode.PARAMS_ERROR, "文件超过 16M");
+        final long ONE_MB = 1000 * 1024 * 1024L;
+        ThrowUtils.throwIf(size > ONE_MB, ErrorCode.PARAMS_ERROR, "文件超过 1000M");
         // 校验文件大小缀 aaa.png
         String suffix = FileUtil.getSuffix(originalFilename);
-        final List<String> validFileSuffixList = Arrays.asList("pdf", "txt", "doc", "docx");
+        final List<String> validFileSuffixList = Arrays.asList("pdf", "txt", "doc", "docx","xlsx","rtf");
         ThrowUtils.throwIf(!validFileSuffixList.contains(suffix), ErrorCode.PARAMS_ERROR, "文件后缀非法");
 
         File file = new File();
@@ -256,7 +260,7 @@ public class FileController {
         String sortOrder = fileQueryRequest.getSortOrder();
         String fileType = fileQuery.getFileType();
         // 限制爬虫
-        if (size > 50) {
+        if (size > 200) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         QueryWrapper<File> queryWrapper = new QueryWrapper<>(fileQuery);
@@ -288,7 +292,7 @@ public class FileController {
         }
         long size = fileQueryRequest.getPageSize();
         // 限制爬虫
-        if (size > 50) {
+        if (size > 200) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         Page<FileVO> postVOPage = fileService.listFileVOByPage(fileQueryRequest, request);
@@ -312,7 +316,7 @@ public class FileController {
         }
         long size = fileQueryRequestByEs.getPageSize();
         // 限制爬虫
-        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        ThrowUtils.throwIf(size > 200, ErrorCode.PARAMS_ERROR);
         Page<File> filePage = fileService.searchFromEs(fileQueryRequestByEs);
         return ResultUtils.success(fileService.getFileVOPage(filePage, request));
     }

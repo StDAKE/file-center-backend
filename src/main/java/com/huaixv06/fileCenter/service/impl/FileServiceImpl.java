@@ -213,11 +213,11 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File>
         long pageSize = fileQueryRequest.getPageSize();
         String sortField = fileQueryRequest.getSortField();
         String sortOrder = fileQueryRequest.getSortOrder();
-        String name = fileQuery.getName();
-        String fileType = fileQuery.getFileType();
-        QueryWrapper<File> queryWrapper = new QueryWrapper<>(fileQuery);
+        String name = fileQueryRequest.getName();
+        String fileType = fileQueryRequest.getFileType();
+        QueryWrapper<File> queryWrapper = new QueryWrapper<>();
         if (StringUtils.isNotBlank(fileType)) {
-            queryWrapper.like("fileType", fileType);
+            queryWrapper.eq("fileType", fileType);
         }
         if (StringUtils.isNotBlank(name)){
             queryWrapper.like("name", name);
@@ -226,8 +226,8 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File>
         queryWrapper.select(File.class, info -> !info.getColumn().equals("content"));
         queryWrapper.orderBy(StringUtils.isNotBlank(sortField),
                 sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
+        System.out.println(queryWrapper.getSqlSegment());
         Page<File> filePage = this.page(new Page<>(current, pageSize), queryWrapper);
-
         return this.getFileVOPage(filePage, request);
     }
 

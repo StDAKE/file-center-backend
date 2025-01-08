@@ -1,3 +1,58 @@
+# 如果密文加盐，需要配置盐值
+jasypt:
+  encryptor:
+    password: huaixv_06
+    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+    algorithm: PBEWithMD5AndDES
+spring:
+  application:
+    name: file-center
+  # DataSource Config
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://1.92.82.236:3306/file_center
+    username: file_center
+    password: dSsei84tGHJ3232x
+    hikari:
+        connection-timeout: 2400000  # 设置连接超时时间为 2400 秒
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+  # session 失效时间（分钟）
+  session:
+    timeout: 86400
+    store-type: redis
+  # redis 配置
+  redis:
+    port: 6379
+    host: localhost
+    database: 0
+#  elasticsearch:
+#    uris: http://49.233.155.187:9200
+#    username: root
+#    password: 123456
+#    connection-timeout: 1200000      # 连接超时（毫秒）
+#    socket-timeout: 1200000         # 套接字超时（毫秒）
+  servlet:
+    multipart:
+      max-file-size: 1000MB
+      max-request-size: 1000MB
+server:
+  port: 7599
+  servlet:
+    context-path: /api
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+      # 需要在实体类的作为全局逻辑删除字段名的前面添加 @TableLogic 注解
+
+
 ## 如果密文加盐，需要配置盐值
 #jasypt:
 #  encryptor:
@@ -10,11 +65,11 @@
 #  # DataSource Config
 #  datasource:
 #    driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://49.233.155.187:3306/file_center
-#    username: file_center
-#    password: xbD4MHMsKGwPJnEh
+#    url: jdbc:mysql://localhost:3306/file_center
+#    username: ENC(qcb+uqKjL8NFq5PJm7ws/g==)
+#    password: ENC(uFKzVrLt4Ci4k2w8HemrpQIOWY2yxJGq)
 #    hikari:
-#        connection-timeout: 1200000  # 设置连接超时时间为 1200 秒
+#      connection-timeout: 1200000  # 设置连接超时时间为 1200 秒
 #  mvc:
 #    pathmatch:
 #      matching-strategy: ANT_PATH_MATCHER
@@ -28,11 +83,18 @@
 #    host: localhost
 #    database: 0
 ##  elasticsearch:
-##    uris: http://49.233.155.187:9200
+##    uris: http://localhost:9200
 ##    username: root
 ##    password: 123456
 ##    connection-timeout: 1200000      # 连接超时（毫秒）
 ##    socket-timeout: 1200000         # 套接字超时（毫秒）
+#  servlet:
+#    multipart:
+#      max-file-size: 1000MB
+#      max-request-size: 1000MB
+#  sql:
+#    init:
+#      mode: always
 #server:
 #  port: 7529
 #  servlet:
@@ -47,64 +109,6 @@
 #      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
 #      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
 #      # 需要在实体类的作为全局逻辑删除字段名的前面添加 @TableLogic 注解
-
-
-# 如果密文加盐，需要配置盐值
-jasypt:
-  encryptor:
-    password: huaixv_06
-    iv-generator-classname: org.jasypt.iv.NoIvGenerator
-    algorithm: PBEWithMD5AndDES
-spring:
-  application:
-    name: file-center
-  # DataSource Config
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/file_center
-    username: ENC(qcb+uqKjL8NFq5PJm7ws/g==)
-    password: ENC(uFKzVrLt4Ci4k2w8HemrpQIOWY2yxJGq)
-    hikari:
-      connection-timeout: 1200000  # 设置连接超时时间为 1200 秒
-  mvc:
-    pathmatch:
-      matching-strategy: ANT_PATH_MATCHER
-  # session 失效时间（分钟）
-  session:
-    timeout: 86400
-    store-type: redis
-  # redis 配置
-  redis:
-    port: 6379
-    host: localhost
-    database: 0
-#  elasticsearch:
-#    uris: http://localhost:9200
-#    username: root
-#    password: 123456
-#    connection-timeout: 1200000      # 连接超时（毫秒）
-#    socket-timeout: 1200000         # 套接字超时（毫秒）
-  servlet:
-    multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
-  sql:
-    init:
-      mode: always
-server:
-  port: 7529
-  servlet:
-    context-path: /api
-mybatis-plus:
-  configuration:
-    map-underscore-to-camel-case: false
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-  global-config:
-    db-config:
-      logic-delete-field: isDelete # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
-      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
-      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
-      # 需要在实体类的作为全局逻辑删除字段名的前面添加 @TableLogic 注解
 
 
 

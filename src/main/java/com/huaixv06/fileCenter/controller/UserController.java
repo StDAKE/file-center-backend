@@ -176,7 +176,6 @@ public class UserController {
      * @param request
      * @return
      */
-    @AuthCheck(mustRole = "admin")
     @PostMapping("/update")
     public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
