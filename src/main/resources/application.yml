@@ -38,7 +38,7 @@ spring:
       max-file-size: 1000MB
       max-request-size: 1000MB
 server:
-  port: 7599
+  port: 7584
   servlet:
     context-path: /api
 mybatis-plus:
@@ -109,6 +109,6 @@ mybatis-plus:
 #      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
 #      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
 #      # 需要在实体类的作为全局逻辑删除字段名的前面添加 @TableLogic 注解
-
-
-
+#
+#
+#
