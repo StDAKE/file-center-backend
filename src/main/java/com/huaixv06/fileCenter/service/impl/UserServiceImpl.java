@@ -18,6 +18,8 @@ import org.springframework.util.DigestUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import java.util.List;
+
 import static com.huaixv06.fileCenter.constant.UserConstant.ADMIN_ROLE;
 import static com.huaixv06.fileCenter.constant.UserConstant.USER_LOGIN_STATE;
 
@@ -82,12 +84,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
-        if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号错误");
-        }
-        if (userPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
-        }
+//        if (userAccount.length() < 4) {
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号错误");
+//        }
+//        if (userPassword.length() < 8) {
+//            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
+//        }
         // 2. 加密
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
         // 查询用户是否存在
@@ -174,7 +176,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         request.getSession().removeAttribute(USER_LOGIN_STATE);
         return true;
     }
-
 }
 
 

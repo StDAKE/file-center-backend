@@ -1,5 +1,6 @@
 package com.huaixv06.fileCenter.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.plugins.pagination.PageDTO;
@@ -16,13 +17,19 @@ import com.huaixv06.fileCenter.model.vo.UserVO;
 import com.huaixv06.fileCenter.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.huaixv06.fileCenter.utils.ExcelUtils.parseUsernamesFromExcel;
 
 /**
  * 用户接口
@@ -152,6 +159,37 @@ public class UserController {
         return ResultUtils.success(user.getId());
     }
 
+/**
+     * 批量添加用户（使用MyBatis-Plus）
+     *
+     * @param file
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    @AuthCheck(mustRole = "admin")
+    @PostMapping("/batchAddWithMybatisPlus")
+    public BaseResponse<Integer> batchAddUsers(@RequestPart("file") MultipartFile file, HttpServletRequest request) throws IOException {
+        if (file.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件不能为空");
+        }
+        // 1. 从Excel中解析用户名
+        List<String> usernames = parseUsernamesFromExcel(file);
+        // 2. 检查是否存在重复用户
+        checkDuplicateUsers(usernames);
+        // 3. 创建用户列表（填充默认值）
+        List<User> usersToAdd = new ArrayList<>();
+        for (String username : usernames) {
+            usersToAdd.add(createUserWithDefaults(username));
+        }
+        // 4. 使用MyBatis-Plus批量插入
+        boolean success = userService.saveBatch(usersToAdd);
+        if (!success) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "批量创建用户失败");
+        }
+        return ResultUtils.success(usersToAdd.size());
+    }
+
     /**
      * 删除用户
      *
@@ -267,4 +305,61 @@ public class UserController {
     }
 
     // endregion
+
+    // 检查是否存在重复用户（防止数据冲突）
+    private void checkDuplicateUsers(List<String> usernames) {
+        List<User> existingUsers = userService.list(
+                new LambdaQueryWrapper<User>()
+                        .in(User::getUserAccount, usernames)
+        );
+
+        if (!existingUsers.isEmpty()) {
+            List<String> existingUsernames = existingUsers.stream()
+                    .map(User::getUserAccount)
+                    .collect(Collectors.toList());
+
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,
+                    "以下用户名已存在: " + String.join(", ", existingUsernames));
+        }
+    }
+
+    // 创建用户对象并填充默认值
+    private User createUserWithDefaults(String username) {
+
+        // 设置默认密码（建议从配置读取）
+        String defaultPassword = "123456";
+
+        // 创建用户对象
+        User user = new User();
+        user.setUserAccount(username);
+
+        // 加密密码
+        String encryptedPassword = DigestUtils.md5DigestAsHex((SALT + defaultPassword).getBytes());
+        user.setUserPassword(encryptedPassword);
+
+        // 填充其他默认值
+        user.setUserName(username);          // 默认用户名与账号相同
+        user.setUserRole("user");            // 默认角色
+        user.setStatus(0);                   // 默认状态（0启用）
+
+        return user;
+    }
+
+    // 添加事务注解确保操作原子性
+    @Transactional(rollbackFor = Exception.class)
+    public boolean saveBatch(List<User> userList) {
+        // 批量插入前可添加额外校验逻辑
+        for (User user : userList) {
+            // 验证用户信息完整性
+            if (user.getUserAccount() == null || user.getUserAccount().isEmpty()) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户账号不能为空");
+            }
+            if (user.getUserPassword() == null || user.getUserPassword().isEmpty()) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码不能为空");
+            }
+        }
+
+        // 使用MyBatis-Plus的saveBatch方法执行批量插入
+        return userService.saveBatch(userList);
+    }
 }
