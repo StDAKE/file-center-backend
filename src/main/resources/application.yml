@@ -10,7 +10,7 @@ spring:
   # DataSource Config
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://1.92.82.236:3306/file_center
+    url: jdbc:mysql://62.234.57.51:3306/file_center
     username: file_center
     password: dSsei84tGHJ3232x
     hikari:
